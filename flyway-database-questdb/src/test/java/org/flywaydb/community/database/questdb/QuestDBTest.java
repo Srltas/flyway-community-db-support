@@ -50,8 +50,8 @@ public class QuestDBTest {
                 "1",
                 "select table_name, designatedTimestamp, partitionBy,walEnabled from tables()",
                 "table_name\tdesignatedTimestamp\tpartitionBy\twalEnabled\n" +
-                        "trades\tts\tDAY\tt\n" +
-                        "flyway_schema_history\tinstalled_on\tDAY\tt\n"
+                        "flyway_schema_history\tinstalled_on\tDAY\tt\n" +
+                        "trades\tts\tDAY\tt\n"
         );
     }
 
@@ -92,7 +92,7 @@ public class QuestDBTest {
                         "\tprice DOUBLE,\n" +
                         "\tts TIMESTAMP,\n" +
                         "\tvenue VARCHAR\n" +
-                        ") timestamp(ts) PARTITION BY DAY\n"
+                        ") timestamp(ts) PARTITION BY DAY;\n"
         );
     }
 
@@ -109,7 +109,7 @@ public class QuestDBTest {
                         "\tprice DOUBLE,\n" +
                         "\tts TIMESTAMP,\n" +
                         "\tvenue SYMBOL\n" +
-                        ") timestamp(ts) PARTITION BY DAY\n"
+                        ") timestamp(ts) PARTITION BY DAY;\n"
         );
     }
 
@@ -125,7 +125,7 @@ public class QuestDBTest {
                         "\tqty DOUBLE,\n" +
                         "\tprice DOUBLE,\n" +
                         "\tts TIMESTAMP\n" +
-                        ") timestamp(ts) PARTITION BY DAY\n"
+                        ") timestamp(ts) PARTITION BY DAY;\n"
         );
     }
 
