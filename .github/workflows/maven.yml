@@ -43,6 +43,16 @@ jobs:
           fi
           
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          
+          if [ -n "$LATEST_TAG" ] && [ "$CURRENT_VERSION" != "$LATEST_TAG" ]; then
+            echo "Tagging and skipping auto-bump: Version manually changed to $CURRENT_VERSION"
+            git config user.name "rg-buildmonkey"
+            git config user.email "github-buildmonkey@red-gate.com"
+            git tag "$CURRENT_VERSION"
+            git push --tags
+            exit 0
+          fi
+          
           if [ -n "$LATEST_TAG" ] && git diff --diff-filter=ADR --name-only "$LATEST_TAG"..HEAD -- '*pom.xml' | grep -q pom.xml; then
             NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F'[.-]' '{print $1"."$2+1".0"}')
           else
