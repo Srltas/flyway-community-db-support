@@ -28,31 +28,27 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Configure Git
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "rg-buildmonkey"
+          git config user.email "github-buildmonkey@red-gate.com"
+
       - name: Bump versions
         if: github.ref == 'refs/heads/main'
         run: |
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
-          
-          if [ -n "$LATEST_TAG" ]; then
-            TAG_COMMIT=$(git rev-list -n 1 "$LATEST_TAG")
-            HEAD_COMMIT=$(git rev-parse HEAD)
-            if [ "$TAG_COMMIT" = "$HEAD_COMMIT" ]; then
-              echo "Skipping version bump: HEAD is already tagged ($LATEST_TAG)"
-              exit 0
-            fi
-          fi
-          
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           
+          # Manual override for major bumps
           if [ -n "$LATEST_TAG" ] && [ "$CURRENT_VERSION" != "$LATEST_TAG" ]; then
             echo "Tagging and skipping auto-bump: Version manually changed to $CURRENT_VERSION"
-            git config user.name "rg-buildmonkey"
-            git config user.email "github-buildmonkey@red-gate.com"
             git tag "$CURRENT_VERSION"
             git push --tags
             exit 0
           fi
           
+          # Minor/patch bumping
           if [ -n "$LATEST_TAG" ] && git diff --diff-filter=ADR --name-only "$LATEST_TAG"..HEAD -- '*pom.xml' | grep -q pom.xml; then
             NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F'[.-]' '{print $1"."$2+1".0"}')
           else
@@ -62,8 +58,6 @@ jobs:
           echo "Bumping version: $CURRENT_VERSION -> $NEW_VERSION"
           mvn versions:set -DnewVersion=$NEW_VERSION
           
-          git config user.name "rg-buildmonkey"
-          git config user.email "github-buildmonkey@red-gate.com"
           git add '*pom.xml'
           git commit -m "Bump Flyway Community DB Support to $NEW_VERSION"
           git tag "$NEW_VERSION"
